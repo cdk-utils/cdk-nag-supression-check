@@ -2,7 +2,7 @@ queue_rules:
   - name: default
     update_method: merge
     queue_conditions:
-      - "#approved-reviews-by>=1"
+      - '#approved-reviews-by>=1'
       - -label~=(do-not-merge)
       - status-success=build
       - status-success=package-js
@@ -18,7 +18,7 @@ pull_request_rules:
       queue:
         name: default
     conditions:
-      - "#approved-reviews-by>=1"
+      - '#approved-reviews-by>=1'
       - -label~=(do-not-merge)
       - status-success=build
       - status-success=package-js
