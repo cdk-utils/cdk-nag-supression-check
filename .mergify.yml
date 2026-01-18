@@ -4,8 +4,10 @@ queue_rules:
     queue_conditions:
       - '#approved-reviews-by>=1'
       - -label~=(do-not-merge)
-      - status-success=build
-      - status-success=package-js
+      - status-success=Check dist/
+      - status-success=Analyze (typescript)
+      - status-success=TypeScript Tests
+      - status-success=GitHub Actions Test
     merge_method: squash
     commit_message_template: |-
       {{ title }} (#{{ number }})
@@ -20,8 +22,10 @@ pull_request_rules:
     conditions:
       - '#approved-reviews-by>=1'
       - -label~=(do-not-merge)
-      - status-success=build
-      - status-success=package-js
+      - status-success=Check dist/
+      - status-success=Analyze (typescript)
+      - status-success=TypeScript Tests
+      - status-success=GitHub Actions Test
   - name: Add Blocking label on default PRs
     actions:
       label:
