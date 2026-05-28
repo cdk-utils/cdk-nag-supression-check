@@ -1,5 +1,12 @@
-import * as core from '@actions/core'
-import { wait } from './wait.js'
+import { info, setFailed } from "@actions/core";
+import * as github from "@actions/github";
+import type { GitHub } from "@actions/github/lib/utils";
+import { type ActionInput, parseInput } from "./helpers/inputs.js";
+import {
+	extractFileMatches,
+	type FileMatch,
+	type PRFile,
+} from "./helpers/regex-validations.js";
 
 /**
  * The main function for the action.
@@ -7,21 +14,46 @@ import { wait } from './wait.js'
  * @returns Resolves when the action is complete.
  */
 export async function run(): Promise<void> {
-  try {
-    const ms: string = core.getInput('milliseconds')
+	try {
+		const input: ActionInput | undefined = parseInput();
+		if (!input) {
+			return;
+		}
 
-    // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(`Waiting ${ms} milliseconds ...`)
+		info(`Analyzing PR #${input.prNumber} for pattern: ${input.regexPattern}`);
 
-    // Log the current timestamp, wait, then log the new timestamp
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+		const { context, octokit, prNumber } = input;
 
-    // Set outputs for other workflow steps to use
-    core.setOutput('time', new Date().toTimeString())
-  } catch (error) {
-    // Fail the workflow run if an error occurs
-    if (error instanceof Error) core.setFailed(error.message)
-  }
+		const { data: files } = await octokit.rest.pulls.listFiles({
+			owner: context.repo.owner,
+			repo: context.repo.repo,
+			pull_number: prNumber,
+		});
+
+		const fileMatches: FileMatch[] = extractFileMatches(
+			files,
+			input.regexPattern,
+		);
+
+		if (fileMatches.length === 0) {
+			info("No matches found. No action required.");
+			return;
+		}
+
+		const { data: comments } = await octokit.rest.issues.listComments({
+			owner: context.repo.owner,
+			repo: context.repo.repo,
+			issue_number: prNumber,
+		});
+
+		const { data: currentReviewers } =
+			await octokit.rest.pulls.listRequestedReviewers({
+				owner: context.repo.owner,
+				repo: context.repo.repo,
+				pull_number: prNumber,
+			});
+	} catch (error) {
+		// Fail the workflow run if an error occurs
+		if (error instanceof Error) setFailed(error.message);
+	}
 }

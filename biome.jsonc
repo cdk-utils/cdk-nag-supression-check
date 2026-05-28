@@ -1,0 +1,39 @@
+{
+	"assist": {
+		"actions": {
+			"recommended": true
+		},
+		"enabled": true
+	},
+	"files": {
+		"ignoreUnknown": false,
+		"includes": [
+			"src/**",
+			"test/**",
+			"!.gitattributes",
+			"!.gitignore",
+			"!tsconfig.dev.json"
+		]
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab"
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "double"
+		}
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true
+		}
+	},
+	"vcs": {
+		"clientKind": "git",
+		"enabled": true,
+		"useIgnoreFile": true
+	},
+	"$schema": "node_modules/@biomejs/biome/configuration_schema.json"
+}
